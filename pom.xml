@@ -9,6 +9,17 @@
   <url>https://github.com/goodow/realtime-android/</url>
   <inceptionYear>2013</inceptionYear>
   
+  <repositories>
+    <repository>
+      <id>goodow-realtime</id>
+      <name>Goodow Realtime Maven Repository</name>
+      <url>https://raw.github.com/goodow/maven/master/repositories/realtime/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+  
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -70,6 +81,11 @@
     <dependency>
       <groupId>com.google.android</groupId>
       <artifactId>android</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>android.support</groupId>
+      <artifactId>compatibility-v13</artifactId>
+      <version>13</version>
     </dependency>
     <dependency>
       <groupId>com.google.android.gcm</groupId>

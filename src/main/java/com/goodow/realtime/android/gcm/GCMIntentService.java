@@ -108,7 +108,7 @@ public class GCMIntentService extends GCMBaseIntentService {
   @Override
   public void onMessage(Context context, Intent intent) {
     Log.i(GCMIntentService.class.getName(), "Message received via Google Cloud Messaging:\n\n"
-        + intent.getStringExtra("message"));
+        + intent.getStringExtra("collapse_key"));
   }
 
   /**
@@ -149,11 +149,12 @@ public class GCMIntentService extends GCMBaseIntentService {
          * registered.
          */
         DeviceInfo deviceInfo = new DeviceInfo();
+        String description =
+            URLEncoder.encode(android.os.Build.MANUFACTURER + " " + android.os.Build.PRODUCT,
+                "UTF-8");
         endpoint.insertDeviceInfo(
             deviceInfo.setDeviceRegistrationID(registration).setTimestamp(
-                System.currentTimeMillis()).setDeviceInformation(
-                URLEncoder.encode(android.os.Build.MANUFACTURER + " " + android.os.Build.PRODUCT,
-                    "UTF-8"))).execute();
+                System.currentTimeMillis()).setDeviceInformation("android")).execute();
       }
     } catch (IOException e) {
       Log.e(GCMIntentService.class.getName(),

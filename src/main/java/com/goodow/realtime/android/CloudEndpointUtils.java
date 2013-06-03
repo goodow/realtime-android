@@ -42,6 +42,10 @@ public class CloudEndpointUtils {
    */
   public static final boolean LOCAL_ANDROID_RUN = false;
 
+  // static {
+  // System.setProperty("http.keepAlive", "false");
+  // }
+
   /*
    * The root URL of where your DevAppServer is running (if you're running the DevAppServer
    * locally).

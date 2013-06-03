@@ -16,6 +16,7 @@ package com.goodow.realtime.android.gcm;
 import com.goodow.api.services.device.Device;
 import com.goodow.api.services.device.model.DeviceInfo;
 import com.goodow.realtime.android.CloudEndpointUtils;
+import com.goodow.realtime.channel.RealtimeChannelDemuxer;
 
 import com.google.android.gcm.GCMBaseIntentService;
 import com.google.android.gcm.GCMRegistrar;
@@ -29,6 +30,8 @@ import java.net.URLEncoder;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 /**
@@ -106,9 +109,13 @@ public class GCMIntentService extends GCMBaseIntentService {
    * Called when a cloud message has been received.
    */
   @Override
-  public void onMessage(Context context, Intent intent) {
-    Log.i(GCMIntentService.class.getName(), "Message received via Google Cloud Messaging:\n\n"
-        + intent.getStringExtra("collapse_key"));
+  public void onMessage(Context context, final Intent intent) {
+    new Handler(Looper.getMainLooper()).post(new Runnable() {
+      @Override
+      public void run() {
+        RealtimeChannelDemuxer.get().onMessage(intent.getStringExtra("0"));
+      }
+    });
   }
 
   /**

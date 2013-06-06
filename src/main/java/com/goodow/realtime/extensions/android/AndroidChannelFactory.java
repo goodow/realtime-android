@@ -19,11 +19,25 @@ import com.goodow.realtime.extensions.android.http.AndroidHttpTransport;
 
 import com.google.inject.Singleton;
 
+import android.os.Handler;
+
 @Singleton
 public class AndroidChannelFactory extends JreChannelFactory {
 
   @Override
   public HttpTransport getHttpTransport() {
     return new AndroidHttpTransport();
+  }
+
+  @Override
+  public void scheduleDeferred(Runnable cmd) {
+    Handler handler = new Handler();
+    handler.post(cmd);
+  }
+
+  @Override
+  public void scheduleFixedDelay(Runnable cmd, int delayMs) {
+    Handler handler = new Handler();
+    handler.postDelayed(cmd, delayMs);
   }
 }

@@ -16,16 +16,16 @@ package com.goodow.realtime.android;
 import com.goodow.realtime.channel.util.ChannelFactory;
 import com.goodow.realtime.channel.util.ChannelNative;
 import com.goodow.realtime.extensions.android.AndroidChannelFactory;
-import com.goodow.realtime.extensions.android.AndroidModelFactory;
-import com.goodow.realtime.util.ModelFactory;
-import com.goodow.realtime.util.ModelNative;
+import com.goodow.realtime.model.util.ModelFactory;
+import com.goodow.realtime.model.util.ModelNative;
+import com.goodow.realtime.model.util.impl.JreModelFactory;
 
 import com.google.inject.AbstractModule;
 
 public class RealtimeModule extends AbstractModule {
   @Override
   protected void configure() {
-    bind(ModelFactory.class).to(AndroidModelFactory.class);
+    bind(ModelFactory.class).to(JreModelFactory.class);
     bind(ChannelFactory.class).to(AndroidChannelFactory.class);
     requestStaticInjection(ModelNative.class, ChannelNative.class);
   }

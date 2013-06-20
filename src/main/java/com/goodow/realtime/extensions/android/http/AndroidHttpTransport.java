@@ -267,7 +267,7 @@ public final class AndroidHttpTransport extends HttpTransport {
     Preconditions.checkArgument(supportsMethod(method), "HTTP method %s not supported", method);
     // connection with proxy settings
     try {
-      URL connUrl = new URL(HttpTransport.ROOT + url);
+      URL connUrl = new URL(HttpTransport.CHANNEL + url);
       URLConnection conn = proxy == null ? connUrl.openConnection() : connUrl.openConnection(proxy);
       HttpURLConnection connection = (HttpURLConnection) conn;
       connection.setRequestMethod(method);

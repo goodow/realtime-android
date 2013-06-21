@@ -15,15 +15,11 @@ package com.goodow.realtime.android.gcm;
 
 import com.goodow.api.services.device.Device;
 import com.goodow.api.services.device.model.DeviceInfo;
-import com.goodow.realtime.android.CloudEndpointUtils;
 import com.goodow.realtime.channel.RealtimeChannelDemuxer;
 
 import com.google.android.gcm.GCMBaseIntentService;
 import com.google.android.gcm.GCMRegistrar;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.inject.Inject;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -52,7 +48,8 @@ import android.util.Log;
  * information.
  */
 public class GCMIntentService extends GCMBaseIntentService {
-  private final Device endpoint;
+  @Inject
+  private static Device device;
 
   /*
    * Set this to a valid project number. See
@@ -82,14 +79,6 @@ public class GCMIntentService extends GCMBaseIntentService {
 
   public GCMIntentService() {
     super(PROJECT_NUMBER);
-    Device.Builder endpointBuilder =
-        new Device.Builder(AndroidHttp.newCompatibleTransport(), new JacksonFactory(),
-            new HttpRequestInitializer() {
-              @Override
-              public void initialize(HttpRequest httpRequest) {
-              }
-            });
-    endpoint = CloudEndpointUtils.updateBuilder(endpointBuilder).build();
   }
 
   /**
@@ -137,7 +126,7 @@ public class GCMIntentService extends GCMBaseIntentService {
       /*
        * Using cloud endpoints, see if the device has already been registered with the backend
        */
-      DeviceInfo existingInfo = endpoint.getDeviceInfo(registration).execute();
+      DeviceInfo existingInfo = device.getDeviceInfo(registration).execute();
 
       if (existingInfo != null && registration.equals(existingInfo.getDeviceRegistrationID())) {
         alreadyRegisteredWithEndpointServer = true;
@@ -159,14 +148,13 @@ public class GCMIntentService extends GCMBaseIntentService {
         String description =
             URLEncoder.encode(android.os.Build.MANUFACTURER + " " + android.os.Build.PRODUCT,
                 "UTF-8");
-        endpoint.insertDeviceInfo(
+        device.insertDeviceInfo(
             deviceInfo.setDeviceRegistrationID(registration).setTimestamp(
                 System.currentTimeMillis()).setDeviceInformation("android")).execute();
       }
     } catch (IOException e) {
       Log.e(GCMIntentService.class.getName(),
-          "Exception received when attempting to register with server at " + endpoint.getRootUrl(),
-          e);
+          "Exception received when attempting to register with server at " + device.getRootUrl(), e);
       return;
     }
     Log.i(GCMIntentService.class.getName(), "Registration with Endpoints Server...SUCCEEDED!");
@@ -183,11 +171,11 @@ public class GCMIntentService extends GCMBaseIntentService {
       Log.i(GCMIntentService.class.getName(),
           "De-registration with Google Cloud Messaging....SUCCEEDED!");
       try {
-        endpoint.removeDeviceInfo(registrationId).execute();
+        device.removeDeviceInfo(registrationId).execute();
       } catch (IOException e) {
         Log.e(GCMIntentService.class.getName(),
             "Exception received when attempting to unregister with server at "
-                + endpoint.getRootUrl(), e);
+                + device.getRootUrl(), e);
         return;
       }
     }

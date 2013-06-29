@@ -61,7 +61,7 @@ public class RealtimeModule extends AbstractModule {
     try {
       String channel = resources.getString(identifier);
       endpointBuilder.setRootUrl(channel + "/_ah/api/");
-      Realtime.setChannel(channel);
+      Realtime.setServerAddress(channel);
     } catch (NotFoundException e) {
     }
     return CloudEndpointUtils.updateBuilder(endpointBuilder).build();

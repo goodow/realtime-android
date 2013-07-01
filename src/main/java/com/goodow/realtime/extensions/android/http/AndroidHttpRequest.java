@@ -21,6 +21,7 @@ import com.google.api.client.util.Preconditions;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.nio.charset.Charset;
 
 import android.os.AsyncTask;
 
@@ -41,16 +42,20 @@ final class AndroidHttpRequest extends HttpRequest {
         String content = getContent();
         if (content != null) {
           String contentType = getContentType();
-          if (contentType != null) {
-            addHeader("Content-Type", contentType);
+          if (contentType == null) {
+            setContentType("application/json");
           }
+          addHeader("Content-Type", getContentType());
           String contentEncoding = getContentEncoding();
-          if (contentEncoding != null) {
-            addHeader("Content-Encoding", contentEncoding);
+          if (contentEncoding == null) {
+            setContentEncoding("UTF-8");
           }
+          addHeader("Content-Encoding", getContentEncoding());
           long contentLength = getContentLength();
           if (contentLength >= 0) {
             addHeader("Content-Length", Long.toString(contentLength));
+          } else {
+            addHeader("Content-Length", "" + content.getBytes(Charset.forName("UTF-8")).length);
           }
           String requestMethod = connection.getRequestMethod();
           if ("POST".equals(requestMethod) || "PUT".equals(requestMethod)) {
@@ -64,7 +69,7 @@ final class AndroidHttpRequest extends HttpRequest {
             OutputStream out = connection.getOutputStream();
             String encoding = getContentEncoding();
             try {
-              out.write(content.getBytes(encoding == null ? "UTF-8" : encoding));
+              out.write(content.getBytes(encoding));
             } finally {
               out.close();
             }

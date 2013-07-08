@@ -36,17 +36,30 @@ import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
 
 public class RealtimeModule extends AbstractModule {
+  private static final String SERVER_ADDRESS = "com.goodow.realtime.serverAddress";
+  private static final String REALTIME_SERVER = "http://realtime.goodow.com";
+
+  public static String getEndpointRootUrl(String serverAddress) {
+    if (REALTIME_SERVER.equals(serverAddress)) {
+      return serverAddress + "/ah/api/";
+    } else {
+      return serverAddress + "/_ah/api/";
+    }
+  }
+
   @Override
   protected void configure() {
     requestStaticInjection(GCMIntentService.class);
     bind(ModelFactory.class).to(JreModelFactory.class);
     bind(ChannelFactory.class).to(AndroidChannelFactory.class);
     requestStaticInjection(ModelNative.class, ChannelNative.class);
+
+    // bind(String.class).annotatedWith(ServerAddress.class).asEagerSingleton();
   }
 
   @Provides
   @Singleton
-  Device provideDevice(Application application) {
+  Device provideDevice(@ServerAddress String serverAddress) {
     Device.Builder endpointBuilder =
         new Device.Builder(AndroidHttp.newCompatibleTransport(), new JacksonFactory(),
             new HttpRequestInitializer() {
@@ -54,16 +67,24 @@ public class RealtimeModule extends AbstractModule {
               public void initialize(HttpRequest httpRequest) {
               }
             });
+    endpointBuilder.setRootUrl(getEndpointRootUrl(serverAddress));
+    return CloudEndpointUtils.updateBuilder(endpointBuilder).build();
+  }
+
+  @Provides
+  @Singleton
+  @ServerAddress
+  String provideServerAddress(Application application) {
     Resources resources = application.getResources();
     int identifier =
-        resources.getIdentifier("com.goodow.realtime.channel", "string", application
-            .getPackageName());
+        resources.getIdentifier(SERVER_ADDRESS, "string", application.getPackageName());
+    String serverAddress = null;
     try {
-      String channel = resources.getString(identifier);
-      endpointBuilder.setRootUrl(channel + "/_ah/api/");
-      Realtime.setServerAddress(channel);
+      serverAddress = resources.getString(identifier);
     } catch (NotFoundException e) {
+      serverAddress = REALTIME_SERVER;
     }
-    return CloudEndpointUtils.updateBuilder(endpointBuilder).build();
+    Realtime.setServerAddress(serverAddress);
+    return serverAddress;
   }
 }

@@ -13,18 +13,19 @@
  */
 package com.goodow.realtime.android;
 
-import com.goodow.realtime.android.gcm.GCMIntentService;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import android.app.Application;
-import roboguice.RoboGuice;
+import com.google.inject.BindingAnnotation;
 
-public class RealtimeApplication extends Application {
-  @Override
-  public void onCreate() {
-    super.onCreate();
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-    RoboGuice.setBaseApplicationInjector(this, RoboGuice.DEFAULT_STAGE);
+@BindingAnnotation
+@Target({FIELD, PARAMETER, METHOD})
+@Retention(RUNTIME)
+public @interface ServerAddress {
 
-    GCMIntentService.register(getApplicationContext());
-  }
 }

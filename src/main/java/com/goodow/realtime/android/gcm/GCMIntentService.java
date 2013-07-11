@@ -15,7 +15,7 @@ package com.goodow.realtime.android.gcm;
 
 import com.goodow.api.services.device.Device;
 import com.goodow.api.services.device.model.DeviceInfo;
-import com.goodow.realtime.channel.RealtimeChannelDemuxer;
+import com.goodow.realtime.channel.ChannelDemuxer;
 
 import com.google.android.gcm.GCMBaseIntentService;
 import com.google.android.gcm.GCMRegistrar;
@@ -102,7 +102,7 @@ public class GCMIntentService extends GCMBaseIntentService {
     new Handler(Looper.getMainLooper()).post(new Runnable() {
       @Override
       public void run() {
-        RealtimeChannelDemuxer.get().onMessage(intent.getStringExtra("0"));
+        ChannelDemuxer.get().onMessage(intent.getStringExtra("0"));
       }
     });
   }
@@ -121,14 +121,14 @@ public class GCMIntentService extends GCMBaseIntentService {
      */
     boolean alreadyRegisteredWithEndpointServer = false;
 
+    DeviceInfo existingDevice = null;
     try {
-
       /*
        * Using cloud endpoints, see if the device has already been registered with the backend
        */
-      DeviceInfo existingInfo = device.getDeviceInfo(registration).execute();
+      existingDevice = device.getDeviceInfo(registration).execute();
 
-      if (existingInfo != null && registration.equals(existingInfo.getDeviceRegistrationID())) {
+      if (existingDevice != null && registration.equals(existingDevice.getId())) {
         alreadyRegisteredWithEndpointServer = true;
       }
     } catch (IOException e) {
@@ -136,6 +136,7 @@ public class GCMIntentService extends GCMBaseIntentService {
     }
 
     try {
+      String sessionId = ChannelDemuxer.getSessionId();
       if (!alreadyRegisteredWithEndpointServer) {
         Log.i(GCMIntentService.class.getName(),
             "Registration with Google Cloud Messaging...SUCCEEDED!");
@@ -145,12 +146,16 @@ public class GCMIntentService extends GCMBaseIntentService {
          * registered.
          */
         DeviceInfo deviceInfo = new DeviceInfo();
+        deviceInfo.setSessionId(sessionId);
         String description =
             URLEncoder.encode(android.os.Build.MANUFACTURER + " " + android.os.Build.PRODUCT,
                 "UTF-8");
         device.insertDeviceInfo(
-            deviceInfo.setDeviceRegistrationID(registration).setTimestamp(
-                System.currentTimeMillis()).setDeviceInformation("android")).execute();
+            deviceInfo.setId(registration).setTimestamp(System.currentTimeMillis()).setInformation(
+                description)).execute();
+      } else {
+        existingDevice.setSessionId(sessionId).setTimestamp(System.currentTimeMillis());
+        device.updateDeviceInfo(existingDevice).execute();
       }
     } catch (IOException e) {
       Log.e(GCMIntentService.class.getName(),

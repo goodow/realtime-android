@@ -23,6 +23,10 @@ import android.os.Handler;
 
 @Singleton
 public class AndroidChannelFactory extends JreChannelFactory {
+  @Override
+  public String getDefaultUserAgent() {
+    return System.getProperty("http.agent");
+  }
 
   @Override
   public HttpTransport getHttpTransport() {

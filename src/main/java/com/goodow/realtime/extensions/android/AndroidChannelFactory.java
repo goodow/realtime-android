@@ -20,6 +20,7 @@ import com.goodow.realtime.extensions.android.http.AndroidHttpTransport;
 import com.google.inject.Singleton;
 
 import android.os.Handler;
+import android.os.Looper;
 
 @Singleton
 public class AndroidChannelFactory extends JreChannelFactory {
@@ -35,7 +36,7 @@ public class AndroidChannelFactory extends JreChannelFactory {
 
   @Override
   public void scheduleDeferred(Runnable cmd) {
-    Handler handler = new Handler();
+    Handler handler = new Handler(Looper.getMainLooper());
     handler.post(cmd);
   }
 

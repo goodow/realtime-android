@@ -43,19 +43,21 @@ final class AndroidHttpRequest extends HttpRequest {
         if (content != null) {
           String contentType = getContentType();
           if (contentType == null) {
-            setContentType("application/json");
+            setContentType("text/plain; charset=utf-8");
+            addHeader("Content-Type", getContentType());
           }
-          addHeader("Content-Type", getContentType());
           String contentEncoding = getContentEncoding();
-          if (contentEncoding == null) {
+          if (contentEncoding != null) {
+            addHeader("Content-Encoding", getContentEncoding());
+          } else {
             setContentEncoding("UTF-8");
           }
-          addHeader("Content-Encoding", getContentEncoding());
           long contentLength = getContentLength();
           if (contentLength >= 0) {
             addHeader("Content-Length", Long.toString(contentLength));
           } else {
-            addHeader("Content-Length", "" + content.getBytes(Charset.forName("UTF-8")).length);
+            addHeader("Content-Length", ""
+                + content.getBytes(Charset.forName(getContentEncoding())).length);
           }
           String requestMethod = connection.getRequestMethod();
           if ("POST".equals(requestMethod) || "PUT".equals(requestMethod)) {
@@ -67,9 +69,8 @@ final class AndroidHttpRequest extends HttpRequest {
               connection.setChunkedStreamingMode(0);
             }
             OutputStream out = connection.getOutputStream();
-            String encoding = getContentEncoding();
             try {
-              out.write(content.getBytes(encoding));
+              out.write(content.getBytes(getContentEncoding()));
             } finally {
               out.close();
             }

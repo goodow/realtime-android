@@ -16,6 +16,7 @@ package com.goodow.realtime.android.gcm;
 import com.goodow.api.services.device.Device;
 import com.goodow.api.services.device.model.DeviceInfo;
 import com.goodow.realtime.channel.ChannelDemuxer;
+import com.goodow.realtime.channel.constant.MessageType;
 
 import com.google.android.gcm.GCMBaseIntentService;
 import com.google.android.gcm.GCMRegistrar;
@@ -48,14 +49,14 @@ import android.util.Log;
  * information.
  */
 public class GCMIntentService extends GCMBaseIntentService {
-  @Inject
-  private static Device device;
-
+  public static final String DOWNLOAD_ACTION = "com.goodow.realtime.android.action.DOWNLOAD";
   /*
    * Set this to a valid project number. See
    * http://developers.google.com/eclipse/docs/cloud_endpoint for more information.
    */
   public static final String PROJECT_NUMBER = "158501807005";
+  @Inject
+  private static Device device;
 
   /**
    * Register the device for GCM.
@@ -102,7 +103,26 @@ public class GCMIntentService extends GCMBaseIntentService {
     new Handler(Looper.getMainLooper()).post(new Runnable() {
       @Override
       public void run() {
-        ChannelDemuxer.get().onMessage(intent.getStringExtra("0"));
+        MessageType[] messageTypes = MessageType.values();
+        for (MessageType type : messageTypes) {
+          String key = type.key();
+          if (!intent.hasExtra(key)) {
+            continue;
+          }
+          String msg = intent.getStringExtra(key);
+          switch (type) {
+            case REALTIME:
+              ChannelDemuxer.get().onMessage(msg);
+              break;
+            case DOWNLOAD:
+              Intent downloadIntent = new Intent(DOWNLOAD_ACTION);
+              downloadIntent.putExtra(MessageType.DOWNLOAD.name(), msg);
+              sendBroadcast(downloadIntent);
+              break;
+            default:
+              break;
+          }
+        }
       }
     });
   }

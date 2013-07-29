@@ -40,7 +40,7 @@ public class RealtimeModule extends AbstractModule {
   private static final String REALTIME_SERVER = "http://realtime.goodow.com";
 
   public static String getEndpointRootUrl(String serverAddress) {
-    if (REALTIME_SERVER.equals(serverAddress)) {
+    if (serverAddress.endsWith(".goodow.com")) {
       return serverAddress + "/ah/api/";
     } else {
       return serverAddress + "/_ah/api/";
@@ -53,8 +53,6 @@ public class RealtimeModule extends AbstractModule {
     bind(ModelFactory.class).to(JreModelFactory.class);
     bind(ChannelFactory.class).to(AndroidChannelFactory.class);
     requestStaticInjection(ModelNative.class, ChannelNative.class);
-
-    // bind(String.class).annotatedWith(ServerAddress.class).asEagerSingleton();
   }
 
   @Provides

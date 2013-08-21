@@ -175,7 +175,7 @@ public class GCMIntentService extends GCMBaseIntentService {
                 description)).execute();
       } else {
         existingDevice.setSessionId(sessionId).setTimestamp(System.currentTimeMillis());
-        device.updateDeviceInfo(existingDevice).execute();
+        device.deviceEndpoint().updateDeviceInfo(existingDevice).execute();
       }
     } catch (IOException e) {
       Log.e(GCMIntentService.class.getName(),

@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.goodow.realtime</groupId>
     <artifactId>realtime-parent</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.3.0-SNAPSHOT</version>
   </parent>
   <artifactId>realtime-android</artifactId>
   <url>https://github.com/goodow/realtime-android/</url>
@@ -75,7 +75,7 @@
     <dependency>
       <groupId>com.goodow.apis</groupId>
       <artifactId>goodow-api-services-device</artifactId>
-      <version>${project.version}</version>
+      <version>0.0.1-SNAPSHOT</version>
     </dependency>
     
     <dependency>

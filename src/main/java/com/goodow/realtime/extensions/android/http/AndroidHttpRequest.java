@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Goodow.com
+ * Copyright 2013 Goodow.com
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,18 +15,19 @@ package com.goodow.realtime.extensions.android.http;
 
 import com.goodow.realtime.channel.http.HttpRequest;
 import com.goodow.realtime.channel.http.HttpRequestCallback;
+import com.goodow.realtime.channel.http.HttpTransport;
 
-import com.google.api.client.util.Preconditions;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.http.ByteArrayContent;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpRequestFactory;
+import com.google.api.client.http.HttpResponse;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.nio.charset.Charset;
 
 import android.os.AsyncTask;
 
-final class AndroidHttpRequest extends HttpRequest {
-
+final class AndroidHttpRequest implements HttpRequest {
   private class RequestTask extends AsyncTask<Void, Void, AndroidHttpResponse> {
     Exception exceptionThrown = null;
     private final HttpRequestCallback callback;
@@ -37,66 +38,23 @@ final class AndroidHttpRequest extends HttpRequest {
 
     @Override
     protected AndroidHttpResponse doInBackground(Void... params) {
+      HttpResponse httpResponse = null;
       try {
         // write content
-        String content = getContent();
-        if (content != null) {
-          String contentType = getContentType();
-          if (contentType == null) {
-            setContentType("text/plain; charset=utf-8");
-            addHeader("Content-Type", getContentType());
-          }
-          String contentEncoding = getContentEncoding();
-          if (contentEncoding != null) {
-            addHeader("Content-Encoding", getContentEncoding());
-          } else {
-            setContentEncoding("UTF-8");
-          }
-          long contentLength = getContentLength();
-          if (contentLength >= 0) {
-            addHeader("Content-Length", Long.toString(contentLength));
-          } else {
-            addHeader("Content-Length", ""
-                + content.getBytes(Charset.forName(getContentEncoding())).length);
-          }
-          String requestMethod = connection.getRequestMethod();
-          if ("POST".equals(requestMethod) || "PUT".equals(requestMethod)) {
-            connection.setDoOutput(true);
-            // see http://developer.android.com/reference/java/net/HttpURLConnection.html
-            if (contentLength >= 0 && contentLength <= Integer.MAX_VALUE) {
-              connection.setFixedLengthStreamingMode((int) contentLength);
-            } else {
-              connection.setChunkedStreamingMode(0);
-            }
-            OutputStream out = connection.getOutputStream();
-            try {
-              out.write(content.getBytes(getContentEncoding()));
-            } finally {
-              out.close();
-            }
-          } else {
-            // cannot call setDoOutput(true) because it would change a GET method to POST
-            // for HEAD, OPTIONS, DELETE, or TRACE it would throw an exceptions
-            Preconditions.checkArgument(contentLength == 0,
-                "%s with non-zero content length is not supported", requestMethod);
-          }
-        }
-        // connect
-        boolean successfulConnection = false;
-        try {
-          connection.connect();
-          AndroidHttpResponse response = new AndroidHttpResponse(connection);
-          successfulConnection = true;
-          return response;
-        } finally {
-          if (!successfulConnection) {
-            connection.disconnect();
-          }
-        }
+        httpResponse = httpRequest.execute();
+        return new AndroidHttpResponse(httpResponse);
       } catch (IOException e) {
         exceptionThrown = e;
         return null;
         // Handle exception in PostExecute
+      } finally {
+        try {
+          if (httpResponse != null) {
+            httpResponse.disconnect();
+          }
+        } catch (IOException e) {
+          exceptionThrown = e;
+        }
       }
     }
 
@@ -111,29 +69,29 @@ final class AndroidHttpRequest extends HttpRequest {
     }
   }
 
-  private final HttpURLConnection connection;
+  private static final com.google.api.client.http.HttpTransport HTTP_TRANSPORT = AndroidHttp
+      .newCompatibleTransport();
 
-  /**
-   * @param connection HTTP URL connection
-   */
-  AndroidHttpRequest(HttpURLConnection connection) {
-    this.connection = connection;
-    connection.setInstanceFollowRedirects(false);
+  private final String method;
+  private final String url;
+  private com.google.api.client.http.HttpRequest httpRequest;
+
+  AndroidHttpRequest(String method, String url) {
+    this.method = method;
+    this.url = url;
   }
 
   @Override
-  public void addHeader(String name, String value) {
-    connection.addRequestProperty(name, value);
-  }
-
-  @Override
-  public void executeAsync(HttpRequestCallback callback) throws IOException {
+  public void executeAsync(HttpRequestCallback callback, String content) {
+    HttpRequestFactory requestFactory = HTTP_TRANSPORT.createRequestFactory();
+    try {
+      httpRequest =
+          requestFactory.buildRequest(method, new GenericUrl(HttpTransport.CHANNEL + url),
+              content == null ? null : new ByteArrayContent("text/plain; charset=utf-8", content
+                  .getBytes("UTF-8")));
+    } catch (IOException e) {
+      callback.onFailure(e);
+    }
     new RequestTask(callback).execute();
-  }
-
-  @Override
-  public void setTimeout(int connectTimeout, int readTimeout) {
-    connection.setReadTimeout(readTimeout);
-    connection.setConnectTimeout(connectTimeout);
   }
 }

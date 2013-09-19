@@ -69,7 +69,7 @@
     <!-- Internal modules -->
     <dependency>
       <groupId>com.goodow.realtime</groupId>
-      <artifactId>realtime-model</artifactId>
+      <artifactId>realtime-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

@@ -24,12 +24,13 @@ import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import android.os.AsyncTask;
 
 final class AndroidHttpRequest implements HttpRequest {
   private class RequestTask extends AsyncTask<Void, Void, AndroidHttpResponse> {
-    Exception exceptionThrown = null;
+    private Exception exceptionThrown = null;
     private final HttpRequestCallback callback;
 
     public RequestTask(HttpRequestCallback callback) {
@@ -38,6 +39,7 @@ final class AndroidHttpRequest implements HttpRequest {
 
     @Override
     protected AndroidHttpResponse doInBackground(Void... params) {
+      LOG.config("doInBackground, current tasks: " + numAsyncTasks);
       HttpResponse httpResponse = null;
       try {
         // write content
@@ -60,6 +62,9 @@ final class AndroidHttpRequest implements HttpRequest {
 
     @Override
     protected void onPostExecute(AndroidHttpResponse result) {
+      --numAsyncTasks;
+      LOG.config("onPostExecute, result in tasks: " + numAsyncTasks);
+      super.onPostExecute(result);
       // Check if exception was thrown
       if (exceptionThrown != null) {
         callback.onFailure(exceptionThrown);
@@ -67,7 +72,19 @@ final class AndroidHttpRequest implements HttpRequest {
         callback.onResponse(result);
       }
     }
+
+    @Override
+    protected void onPreExecute() {
+      LOG.config("executeAsync start, current tasks: " + numAsyncTasks);
+      super.onPreExecute();
+      numAsyncTasks++;
+    }
   }
+
+  private static final Logger LOG = Logger.getLogger(com.google.api.client.http.HttpTransport.class
+      .getName());
+
+  private static int numAsyncTasks;
 
   private static final com.google.api.client.http.HttpTransport HTTP_TRANSPORT = AndroidHttp
       .newCompatibleTransport();

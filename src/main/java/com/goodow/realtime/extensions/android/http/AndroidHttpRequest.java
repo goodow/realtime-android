@@ -81,13 +81,11 @@ final class AndroidHttpRequest implements HttpRequest {
     }
   }
 
-  private static final Logger LOG = Logger.getLogger(com.google.api.client.http.HttpTransport.class
-      .getName());
+  private static final Logger LOG = Logger.getLogger(com.google.api.client.http.HttpTransport.class.getName());
 
   private static int numAsyncTasks;
 
-  private static final com.google.api.client.http.HttpTransport HTTP_TRANSPORT = AndroidHttp
-      .newCompatibleTransport();
+  private static final com.google.api.client.http.HttpTransport HTTP_TRANSPORT = AndroidHttp.newCompatibleTransport();
 
   private final String method;
   private final String url;
@@ -103,12 +101,14 @@ final class AndroidHttpRequest implements HttpRequest {
     HttpRequestFactory requestFactory = HTTP_TRANSPORT.createRequestFactory();
     try {
       httpRequest =
-          requestFactory.buildRequest(method, new GenericUrl(HttpTransport.CHANNEL + url),
-              content == null ? null : new ByteArrayContent("text/plain; charset=utf-8", content
-                  .getBytes("UTF-8")));
+          requestFactory.buildRequest(method, new GenericUrl(HttpTransport.CHANNEL + url), content == null ? null : new ByteArrayContent(
+              "text/plain; charset=utf-8", content.getBytes("UTF-8")));
     } catch (IOException e) {
       callback.onFailure(e);
     }
-    new RequestTask(callback).execute();
+    // 多线程
+    new RequestTask(callback).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    // new RequestTask(callback).execute();
+
   }
 }

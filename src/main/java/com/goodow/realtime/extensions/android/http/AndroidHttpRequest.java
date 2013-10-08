@@ -102,7 +102,7 @@ final class AndroidHttpRequest implements HttpRequest {
     try {
       httpRequest =
           requestFactory.buildRequest(method, new GenericUrl(HttpTransport.CHANNEL + url), content == null ? null : new ByteArrayContent(
-              "text/plain; charset=utf-8", content.getBytes("UTF-8")));
+              "application/json; charset=utf-8", content.getBytes("UTF-8")));
     } catch (IOException e) {
       callback.onFailure(e);
     }

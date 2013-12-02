@@ -11,29 +11,24 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.goodow.realtime.extensions.android.http;
+package com.goodow.realtime.java;
 
-import com.goodow.realtime.channel.http.HttpResponse;
+import com.goodow.realtime.core.Net;
+import com.goodow.realtime.core.Platform;
+import com.goodow.realtime.core.WebSocket;
+import com.goodow.realtime.java.JavaWebSocket;
+import com.goodow.realtime.json.JsonObject;
 
-import java.io.IOException;
+class JavaNet implements Net {
 
-final class AndroidHttpResponse implements HttpResponse {
+  private final Platform platform;
 
-  private final String content;
-  private final int statusCode;
-
-  AndroidHttpResponse(com.google.api.client.http.HttpResponse httpResponse) throws IOException {
-    statusCode = httpResponse.getStatusCode();
-    content = httpResponse.parseAsString();
+  public JavaNet(Platform platform) {
+    this.platform = platform;
   }
 
   @Override
-  public String getContent() {
-    return content;
-  }
-
-  @Override
-  public int getStatusCode() {
-    return statusCode;
+  public WebSocket createWebSocket(String url, JsonObject options) {
+    return new JavaWebSocket(platform, url);
   }
 }

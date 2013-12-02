@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Goodow.com
+ * Copyright 2013 Goodow.com
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,18 +13,22 @@
  */
 package com.goodow.realtime.android;
 
-import com.goodow.realtime.android.gcm.GCMIntentService;
+import com.goodow.realtime.core.Net;
+import com.goodow.realtime.core.Platform;
+import com.goodow.realtime.core.WebSocket;
+import com.goodow.realtime.java.JavaWebSocket;
+import com.goodow.realtime.json.JsonObject;
 
-import android.app.Application;
-import roboguice.RoboGuice;
+class AndroidNet implements Net {
 
-public class RealtimeApplication extends Application {
+  private final Platform platform;
+
+  public AndroidNet(Platform platform) {
+    this.platform = platform;
+  }
+
   @Override
-  public void onCreate() {
-    super.onCreate();
-
-    RoboGuice.setBaseApplicationInjector(this, RoboGuice.DEFAULT_STAGE);
-
-    GCMIntentService.register(getApplicationContext());
+  public WebSocket createWebSocket(String url, JsonObject options) {
+    return new JavaWebSocket(platform, url);
   }
 }

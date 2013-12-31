@@ -20,7 +20,9 @@ public class EventBusDemo {
   }
 
   public static void main(String[] args) throws IOException {
-    final Bus bus = new WebSocketBusClient("ws://data.goodow.com:8080/eventbus/websocket", null);
+    final Bus bus =
+        new WebSocketBusClient("ws://data.goodow.com:8080/eventbus/websocket", Json.createObject()
+            .set("forkLocal", true));
     bus.registerHandler(Bus.LOCAL_ON_OPEN, new MessageHandler<JsonObject>() {
       @Override
       public void handle(Message<JsonObject> message) {
@@ -31,15 +33,11 @@ public class EventBusDemo {
       @Override
       public void handle(Message<JsonObject> message) {
         log.info("EventBus closed");
+        System.exit(0);
       }
     });
 
-    // Prevent the JVM from exiting
-    System.in.read();
-  }
-
-  private static void handlerEventBusOpened(final Bus bus) {
-    bus.registerHandler("someaddress", new MessageHandler<JsonObject>() {
+    bus.registerHandler("java.someaddress", new MessageHandler<JsonObject>() {
       @Override
       public void handle(Message<JsonObject> message) {
         Assert.assertEquals("send1", message.body().getString("text"));
@@ -52,15 +50,20 @@ public class EventBusDemo {
             Assert.assertEquals("reply2", message.body().getString("text"));
             Assert.assertNull(message.replyAddress());
 
-            System.exit(0);
+            bus.close();
           }
         });
       }
     });
 
+    // Prevent the JVM from exiting
+    System.in.read();
+  }
+
+  private static void handlerEventBusOpened(final Bus bus) {
     JsonObject o1 = Json.createObject();
     o1.set("text", "send1");
-    bus.send("someaddress", o1, new Handler<Message<JsonObject>>() {
+    bus.send("java.someaddress", o1, new Handler<Message<JsonObject>>() {
       @Override
       public void handle(Message<JsonObject> message) {
         Assert.assertEquals("reply1", message.body().getString("text"));

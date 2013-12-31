@@ -14,21 +14,14 @@
 package com.goodow.realtime.android;
 
 import com.goodow.realtime.core.Net;
-import com.goodow.realtime.core.Platform;
 import com.goodow.realtime.core.WebSocket;
 import com.goodow.realtime.java.JavaWebSocket;
 import com.goodow.realtime.json.JsonObject;
 
 class AndroidNet implements Net {
 
-  private final Platform platform;
-
-  public AndroidNet(Platform platform) {
-    this.platform = platform;
-  }
-
   @Override
   public WebSocket createWebSocket(String url, JsonObject options) {
-    return new JavaWebSocket(platform, url);
+    return new JavaWebSocket(url);
   }
 }

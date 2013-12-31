@@ -13,9 +13,8 @@
  */
 package com.goodow.realtime.java;
 
-import com.goodow.realtime.core.Platform;
-import com.goodow.realtime.core.VoidHandler;
 import com.goodow.realtime.core.WebSocket;
+import com.goodow.realtime.json.Json;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_17;
@@ -44,90 +43,73 @@ public class JavaWebSocket implements WebSocket {
     return data;
   }
 
-  private final WebSocketClient socket;
-
+  private WebSocketClient socket;
   private WebSocketHandler eventHandler;
 
-  public JavaWebSocket(final Platform platform, String uri) {
-    URI juri = null;
+  public JavaWebSocket(String uri) {
+    URI serverUri = null;
     try {
-      juri = new URI(uri);
+      serverUri = new URI(uri);
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
     }
 
-    socket = new WebSocketClient(juri, new Draft_17()) {
+    socket = new WebSocketClient(serverUri, new Draft_17()) {
       @Override
-      public void onClose(int arg0, String arg1, boolean arg2) {
+      public void onClose(final int code, final String reason, final boolean remote) {
+        log.info("WebSocket closed, code=" + code + ", reason=" + reason + ", remote=" + remote);
         if (eventHandler == null) {
           return;
         }
-        platform.scheduleDeferred(new VoidHandler() {
-          @Override
-          public void handle() {
-            eventHandler.onClose();
-          }
-        });
+        eventHandler.onClose(Json.createObject().set("code", code).set("reason", reason).set(
+            "remote", remote));
       }
 
       @Override
       public void onError(final Exception e) {
-        log.log(Level.SEVERE, "Error occured when processing WebSocket", e);
+        log.log(Level.SEVERE, "Websocket Failed With Exception", e);
         if (eventHandler == null) {
           return;
         }
-        platform.scheduleDeferred(new VoidHandler() {
-          @Override
-          public void handle() {
-            String message = e.getMessage();
-            eventHandler.onError(message == null ? e.getClass().getSimpleName() : message);
-          }
-        });
+        String message = e.getMessage();
+        eventHandler.onError(message == null ? e.getClass().getSimpleName() : message);
       }
 
       @Override
       public void onMessage(final ByteBuffer buffer) {
+        final String msg;
+        try {
+          msg = JavaWebSocket.toString(buffer);
+        } catch (CharacterCodingException e) {
+          log.log(Level.SEVERE, "Websocket Failed when Charset Decoding", e);
+          return;
+        }
+        log.finest("Websocket Received: " + msg);
         if (eventHandler == null) {
           return;
         }
-        platform.scheduleDeferred(new VoidHandler() {
-          @Override
-          public void handle() {
-            try {
-              eventHandler.onMessage(JavaWebSocket.toString(buffer));
-            } catch (CharacterCodingException e) {
-              onError(e);
-            }
-          }
-        });
+        eventHandler.onMessage(msg);
       }
 
       @Override
       public void onMessage(final String msg) {
+        log.finest("Websocket received: " + msg);
         if (eventHandler == null) {
           return;
         }
-        platform.scheduleDeferred(new VoidHandler() {
-          @Override
-          public void handle() {
-            eventHandler.onMessage(msg);
-          }
-        });
+        eventHandler.onMessage(msg);
       }
 
       @Override
       public void onOpen(ServerHandshake handshake) {
+        log.info("Websocket Connected");
         if (eventHandler == null) {
           return;
         }
-        platform.scheduleDeferred(new VoidHandler() {
-          @Override
-          public void handle() {
-            eventHandler.onOpen();
-          }
-        });
+        eventHandler.onOpen();
       }
     };
+
     socket.connect();
   }
 
@@ -139,6 +121,7 @@ public class JavaWebSocket implements WebSocket {
   @Override
   public void send(String data) {
     try {
+      log.finest("Websocket send: " + data);
       socket.getConnection().send(data);
     } catch (Throwable e) {
       throw new RuntimeException(e);

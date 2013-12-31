@@ -15,24 +15,26 @@ package com.goodow.realtime.android;
 
 import com.goodow.realtime.core.Net;
 import com.goodow.realtime.core.Platform;
+import com.goodow.realtime.core.Platform.Type;
 import com.goodow.realtime.core.VoidHandler;
 import com.goodow.realtime.java.JavaPlatform;
 
 import android.os.Looper;
 
 public class AndroidPlatform extends JavaPlatform {
-  public static AndroidPlatform register() {
-    AndroidPlatform platform = new AndroidPlatform();
-    Platform.setPlatform(platform);
-    return platform;
+  public static void register() {
+    Platform.setFactory(new AndroidPlatform());
   }
 
+  private final android.os.Handler handler;
+
   private AndroidPlatform() {
+    handler = new android.os.Handler(Looper.getMainLooper());
   }
 
   @Override
   public Net net() {
-    return net == null ? new AndroidNet(this) : net;
+    return net == null ? new AndroidNet() : net;
   }
 
   /**
@@ -40,8 +42,7 @@ public class AndroidPlatform extends JavaPlatform {
    */
   @Override
   public void scheduleDeferred(final VoidHandler handler) {
-    android.os.Handler _handler = new android.os.Handler(Looper.getMainLooper());
-    _handler.post(new Runnable() {
+    this.handler.post(new Runnable() {
       @Override
       public void run() {
         handler.handle(null);

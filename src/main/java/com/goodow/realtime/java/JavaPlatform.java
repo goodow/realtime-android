@@ -15,6 +15,8 @@ package com.goodow.realtime.java;
 
 import com.goodow.realtime.core.Net;
 import com.goodow.realtime.core.Platform;
+import com.goodow.realtime.core.Platform.Type;
+import com.goodow.realtime.core.PlatformFactory;
 import com.goodow.realtime.core.VoidHandler;
 
 import java.util.HashMap;
@@ -23,14 +25,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class JavaPlatform extends Platform {
+public class JavaPlatform implements PlatformFactory {
   /**
    * Registers the Java platform with a default configuration.
    */
-  public static JavaPlatform register() {
-    JavaPlatform platform = new JavaPlatform();
-    Platform.setPlatform(platform);
-    return platform;
+  public static void register() {
+    Platform.setFactory(new JavaPlatform());
   }
 
   private final AtomicInteger timerId;
@@ -39,7 +39,7 @@ public class JavaPlatform extends Platform {
   protected JavaNet net;
 
   protected JavaPlatform() {
-    timerId = new AtomicInteger(0);
+    timerId = new AtomicInteger(1);
     timers = new HashMap<Integer, TimerTask>();
     timer = new Timer(true);
   }
@@ -56,17 +56,17 @@ public class JavaPlatform extends Platform {
 
   @Override
   public Net net() {
-    return net == null ? new JavaNet(this) : null;
+    return net == null ? new JavaNet() : net;
   }
 
   @Override
   public void scheduleDeferred(final VoidHandler handler) {
-    new Thread(new Runnable() {
+    new Thread() {
       @Override
       public void run() {
         handler.handle(null);
       }
-    }).run();
+    }.start();
   }
 
   @Override

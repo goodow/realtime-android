@@ -42,8 +42,7 @@ public class EventBusDemo {
       public void handle(Message<JsonObject> message) {
         Assert.assertEquals("send1", message.body().getString("text"));
 
-        JsonObject o1 = Json.createObject();
-        o1.set("text", "reply1");
+        JsonObject o1 = Json.createObject().set("text", "reply1");
         message.reply(o1, new Handler<Message<JsonObject>>() {
           @Override
           public void handle(Message<JsonObject> message) {
@@ -61,15 +60,13 @@ public class EventBusDemo {
   }
 
   private static void handlerEventBusOpened(final Bus bus) {
-    JsonObject o1 = Json.createObject();
-    o1.set("text", "send1");
+    JsonObject o1 = Json.createObject().set("text", "send1");
     bus.send("java.someaddress", o1, new Handler<Message<JsonObject>>() {
       @Override
       public void handle(Message<JsonObject> message) {
         Assert.assertEquals("reply1", message.body().getString("text"));
 
-        JsonObject o1 = Json.createObject();
-        o1.set("text", "reply2");
+        JsonObject o1 = Json.createObject().set("text", "reply2");
         message.reply(o1);
       }
     });

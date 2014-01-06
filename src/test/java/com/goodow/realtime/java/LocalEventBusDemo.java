@@ -5,32 +5,44 @@ import com.goodow.realtime.channel.Message;
 import com.goodow.realtime.channel.MessageHandler;
 import com.goodow.realtime.channel.impl.SimpleBus;
 import com.goodow.realtime.core.Handler;
-import com.goodow.realtime.json.Json;
-import com.goodow.realtime.json.JsonObject;
 
 import org.junit.Assert;
 
 import java.io.IOException;
 
 public class LocalEventBusDemo {
+  static class Any {
+    String str;
+    LocalEventBusDemo demo;
+
+    public Any(String str, LocalEventBusDemo demo) {
+      this.str = str;
+      this.demo = demo;
+    }
+  }
+
+  static {
+    JavaPlatform.register();
+  }
+
   public static void main(String[] args) throws IOException {
     Bus bus = new SimpleBus();
+    final LocalEventBusDemo demo = new LocalEventBusDemo();
 
-    bus.registerHandler("someaddress", new MessageHandler<JsonObject>() {
+    bus.registerHandler("someaddress", new MessageHandler<Any>() {
       @Override
-      public void handle(Message<JsonObject> message) {
-        Assert.assertEquals("send1", message.body().getString("text"));
+      public void handle(Message<Any> message) {
+        Assert.assertEquals("some string", message.body().str);
+        Assert.assertSame(demo, message.body().demo);
 
-        JsonObject o1 = Json.createObject().set("text", "reply1");
-        message.reply(o1);
+        message.reply("reply");
       }
     });
 
-    JsonObject o1 = Json.createObject().set("text", "send1");
-    bus.send("someaddress", o1, new Handler<Message<JsonObject>>() {
+    bus.send("someaddress", new Any("some string", demo), new Handler<Message<String>>() {
       @Override
-      public void handle(Message<JsonObject> message) {
-        Assert.assertEquals("reply1", message.body().getString("text"));
+      public void handle(Message<String> message) {
+        Assert.assertEquals("reply", message.body());
 
         System.exit(0);
       }

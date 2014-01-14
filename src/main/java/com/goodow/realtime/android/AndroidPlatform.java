@@ -13,10 +13,10 @@
  */
 package com.goodow.realtime.android;
 
+import com.goodow.realtime.core.Handler;
 import com.goodow.realtime.core.Net;
 import com.goodow.realtime.core.Platform;
 import com.goodow.realtime.core.Platform.Type;
-import com.goodow.realtime.core.VoidHandler;
 import com.goodow.realtime.java.JavaPlatform;
 
 import android.os.Looper;
@@ -41,7 +41,7 @@ public class AndroidPlatform extends JavaPlatform {
    * A deferred command is executed after the event loop returns.
    */
   @Override
-  public void scheduleDeferred(final VoidHandler handler) {
+  public void scheduleDeferred(final Handler<Void> handler) {
     this.handler.post(new Runnable() {
       @Override
       public void run() {

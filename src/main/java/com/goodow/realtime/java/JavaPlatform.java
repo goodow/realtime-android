@@ -13,11 +13,11 @@
  */
 package com.goodow.realtime.java;
 
+import com.goodow.realtime.core.Handler;
 import com.goodow.realtime.core.Net;
 import com.goodow.realtime.core.Platform;
 import com.goodow.realtime.core.Platform.Type;
 import com.goodow.realtime.core.PlatformFactory;
-import com.goodow.realtime.core.VoidHandler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,7 +60,7 @@ public class JavaPlatform implements PlatformFactory {
   }
 
   @Override
-  public void scheduleDeferred(final VoidHandler handler) {
+  public void scheduleDeferred(final Handler<Void> handler) {
     new Thread() {
       @Override
       public void run() {
@@ -70,7 +70,7 @@ public class JavaPlatform implements PlatformFactory {
   }
 
   @Override
-  public int setPeriodic(int delayMs, final VoidHandler handler) {
+  public int setPeriodic(int delayMs, final Handler<Void> handler) {
     final int id = timerId.getAndIncrement();
     TimerTask task = new TimerTask() {
       @Override

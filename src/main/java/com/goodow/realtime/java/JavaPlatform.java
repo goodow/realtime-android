@@ -13,17 +13,11 @@
  */
 package com.goodow.realtime.java;
 
-import com.goodow.realtime.core.Handler;
 import com.goodow.realtime.core.Net;
 import com.goodow.realtime.core.Platform;
 import com.goodow.realtime.core.Platform.Type;
 import com.goodow.realtime.core.PlatformFactory;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.goodow.realtime.core.Scheduler;
 
 public class JavaPlatform implements PlatformFactory {
   /**
@@ -33,54 +27,26 @@ public class JavaPlatform implements PlatformFactory {
     Platform.setFactory(new JavaPlatform());
   }
 
-  private final AtomicInteger timerId;
-  private final Map<Integer, TimerTask> timers;
-  private final Timer timer;
-  protected JavaNet net;
+  protected final JavaNet net;
+  protected final JavaScheduler scheduler;
 
-  protected JavaPlatform() {
-    timerId = new AtomicInteger(1);
-    timers = new HashMap<Integer, TimerTask>();
-    timer = new Timer(true);
+  protected JavaPlatform(JavaScheduler scheduler) {
+    net = new JavaNet();
+    this.scheduler = scheduler;
   }
 
-  @Override
-  public boolean cancelTimer(int id) {
-    if (timers.containsKey(id)) {
-      timers.get(id).cancel();
-      timers.remove(id);
-      return true;
-    }
-    return false;
+  private JavaPlatform() {
+    this(new JavaScheduler());
   }
 
   @Override
   public Net net() {
-    return net == null ? new JavaNet() : net;
+    return net;
   }
 
   @Override
-  public void scheduleDeferred(final Handler<Void> handler) {
-    new Thread() {
-      @Override
-      public void run() {
-        handler.handle(null);
-      }
-    }.start();
-  }
-
-  @Override
-  public int setPeriodic(int delayMs, final Handler<Void> handler) {
-    final int id = timerId.getAndIncrement();
-    TimerTask task = new TimerTask() {
-      @Override
-      public void run() {
-        handler.handle(null);
-      }
-    };
-    timers.put(id, task);
-    timer.scheduleAtFixedRate(task, delayMs, delayMs);
-    return id;
+  public Scheduler scheduler() {
+    return scheduler;
   }
 
   @Override

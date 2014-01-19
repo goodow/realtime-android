@@ -16,7 +16,9 @@ package com.goodow.realtime.java;
 import com.goodow.realtime.channel.Bus;
 import com.goodow.realtime.channel.Message;
 import com.goodow.realtime.channel.MessageHandler;
-import com.goodow.realtime.channel.impl.WebSocketBusClient;
+import com.goodow.realtime.channel.impl.ReconnectBus;
+import com.goodow.realtime.channel.impl.SimpleBus;
+import com.goodow.realtime.channel.util.IdGenerator;
 import com.goodow.realtime.core.Handler;
 import com.goodow.realtime.core.HandlerRegistration;
 import com.goodow.realtime.json.Json;
@@ -29,6 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class EventBusDemo {
+  private static final String ADDR = "java.someaddress." + new IdGenerator().next(5);
   private static final Logger log = Logger.getLogger(EventBusDemo.class.getName());
   private static HandlerRegistration handlerRegs;
   static {
@@ -37,8 +40,8 @@ public class EventBusDemo {
 
   public static void main(String[] args) throws IOException {
     final Bus bus =
-        new WebSocketBusClient("ws://data.goodow.com:8080/eventbus/websocket", Json.createObject()
-            .set("forkLocal", true));
+        new ReconnectBus("ws://data.goodow.com:8080/eventbus/websocket", Json.createObject()
+            .set(SimpleBus.MODE_MIX, true));
     final HandlerRegistration openHandlerReg =
         bus.registerHandler(Bus.LOCAL_ON_OPEN, new MessageHandler<JsonObject>() {
           @Override
@@ -66,7 +69,7 @@ public class EventBusDemo {
         });
 
     final HandlerRegistration handlerRegistration =
-        bus.registerHandler("java.someaddress", new MessageHandler<JsonObject>() {
+        bus.registerHandler(ADDR, new MessageHandler<JsonObject>() {
           @Override
           public void handle(Message<JsonObject> message) {
             Assert.assertEquals("send1", message.body().getString("text"));
@@ -100,7 +103,7 @@ public class EventBusDemo {
 
   private static void handlerEventBusOpened(final Bus bus) {
     JsonObject o1 = Json.createObject().set("text", "send1");
-    bus.send("java.someaddress", o1, new Handler<Message<JsonObject>>() {
+    bus.send(ADDR, o1, new Handler<Message<JsonObject>>() {
       @Override
       public void handle(Message<JsonObject> message) {
         Assert.assertEquals("reply1", message.body().getString("text"));

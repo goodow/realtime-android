@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Goodow.com
+ * Copyright 2014 Goodow.com
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,15 +13,25 @@
  */
 package com.goodow.realtime.android;
 
-import com.goodow.realtime.core.Net;
-import com.goodow.realtime.core.WebSocket;
-import com.goodow.realtime.java.JavaWebSocket;
-import com.goodow.realtime.json.JsonObject;
+import com.goodow.realtime.core.Handler;
+import com.goodow.realtime.java.JavaScheduler;
 
-class AndroidNet implements Net {
+import android.os.Looper;
+
+class AndroidScheduler extends JavaScheduler {
+  private final android.os.Handler handler;
+
+  AndroidScheduler() {
+    handler = new android.os.Handler(Looper.getMainLooper());
+  }
 
   @Override
-  public WebSocket createWebSocket(String url, JsonObject options) {
-    return new JavaWebSocket(url);
+  public void scheduleDeferred(final Handler<Void> handler) {
+    this.handler.post(new Runnable() {
+      @Override
+      public void run() {
+        handler.handle(null);
+      }
+    });
   }
 }

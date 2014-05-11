@@ -40,7 +40,7 @@ public class EventBusDemo {
 
   public static void main(String[] args) throws IOException {
     final Bus bus =
-        new ReconnectBus("ws://data.goodow.com:8080/eventbus/websocket", Json.createObject()
+        new ReconnectBus("ws://realtime.goodow.com:1986/channel/websocket", Json.createObject()
             .set(SimpleBus.MODE_MIX, true));
     final HandlerRegistration openHandlerReg =
         bus.registerHandler(Bus.LOCAL_ON_OPEN, new MessageHandler<JsonObject>() {
@@ -79,7 +79,7 @@ public class EventBusDemo {
               @Override
               public void handle(Message<JsonObject> message) {
                 Assert.assertEquals("reply2", message.body().getString("text"));
-                Assert.assertNull(message.replyAddress());
+                // Assert.assertNull(message.replyAddress());
 
                 bus.close();
               }

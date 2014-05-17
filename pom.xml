@@ -49,8 +49,8 @@
     
     <!-- Test -->
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>io.vertx</groupId>
+      <artifactId>testtools</artifactId>
     </dependency>
   </dependencies>
 </project>

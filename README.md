@@ -33,12 +33,9 @@ Event bus client over WebSocket for java and andorid
 ## Usage
 
 ### WebSocket mode
-See https://github.com/goodow/realtime-android/blob/master/src/test/java/com/goodow/realtime/java/EventBusDemo.java
+See https://github.com/goodow/realtime-android/blob/master/src/test/java/com/goodow/realtime/java/WebSocketBusTest.java
 
 ### Local mode
-See https://github.com/goodow/realtime-android/blob/master/src/test/java/com/goodow/realtime/java/LocalEventBusDemo.java
-
-### Mix mode
-todo
+See https://github.com/goodow/realtime-android/blob/master/src/test/java/com/goodow/realtime/java/SimpleBusTest.java
 
 **NOTE:** You must register a platform first by invoke JavaPlatform.register() or AndroidPlatform.register()

@@ -20,36 +20,36 @@ import com.goodow.realtime.channel.impl.SimpleBus;
 import com.goodow.realtime.core.Handler;
 import com.goodow.realtime.core.HandlerRegistration;
 
-import org.junit.Assert;
+import org.junit.Test;
+import org.vertx.testtools.TestVerticle;
+import org.vertx.testtools.VertxAssert;
 
-import java.io.IOException;
-
-public class LocalEventBusDemo {
+public class SimpleBusTest extends TestVerticle {
   static class Any {
     String str;
-    LocalEventBusDemo demo;
+    SimpleBusTest demo;
 
-    public Any(String str, LocalEventBusDemo demo) {
+    public Any(String str, SimpleBusTest demo) {
       this.str = str;
       this.demo = demo;
     }
   }
 
-  private static HandlerRegistration handlerRegistration;
-
+  private final Bus bus = new SimpleBus();
+  private HandlerRegistration handlerRegistration;
   static {
     JavaPlatform.register();
   }
 
-  public static void main(String[] args) throws IOException {
-    Bus bus = new SimpleBus();
-    final LocalEventBusDemo demo = new LocalEventBusDemo();
+  @Test
+  public void testLocal() {
+    final SimpleBusTest demo = new SimpleBusTest();
 
-    handlerRegistration = bus.registerHandler("someaddress", new MessageHandler<Any>() {
+    handlerRegistration = bus.registerLocalHandler("someaddress", new MessageHandler<Any>() {
       @Override
       public void handle(Message<Any> message) {
-        Assert.assertEquals("some string", message.body().str);
-        Assert.assertSame(demo, message.body().demo);
+        VertxAssert.assertEquals("some string", message.body().str);
+        VertxAssert.assertSame(demo, message.body().demo);
 
         message.reply("reply");
 
@@ -58,16 +58,13 @@ public class LocalEventBusDemo {
       }
     });
 
-    bus.send("someaddress", new Any("some string", demo), new Handler<Message<String>>() {
+    bus.sendLocal("someaddress", new Any("some string", demo), new Handler<Message<String>>() {
       @Override
       public void handle(Message<String> message) {
-        Assert.assertEquals("reply", message.body());
+        VertxAssert.assertEquals("reply", message.body());
 
-        System.exit(0);
+        VertxAssert.testComplete();
       }
     });
-
-    // Prevent the JVM from exiting
-    System.in.read();
   }
 }

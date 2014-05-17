@@ -13,9 +13,11 @@
  */
 package com.goodow.realtime.java;
 
+import com.goodow.realtime.channel.State;
 import com.goodow.realtime.core.WebSocket;
 import com.goodow.realtime.json.Json;
 
+import org.java_websocket.WebSocket.READYSTATE;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_17;
 import org.java_websocket.handshake.ServerHandshake;
@@ -116,6 +118,13 @@ public class JavaWebSocket implements WebSocket {
   @Override
   public void close() {
     socket.close();
+  }
+
+  @Override
+  public State getReadyState() {
+    READYSTATE readyState = socket.getReadyState();
+    return readyState == READYSTATE.NOT_YET_CONNECTED ? State.CONNECTING : State.values[readyState
+        .ordinal() - 1];
   }
 
   @Override

@@ -18,7 +18,7 @@ import com.goodow.realtime.channel.Message;
 import com.goodow.realtime.channel.MessageHandler;
 import com.goodow.realtime.channel.impl.SimpleBus;
 import com.goodow.realtime.core.Handler;
-import com.goodow.realtime.core.HandlerRegistration;
+import com.goodow.realtime.core.Registration;
 
 import org.junit.Test;
 import org.vertx.testtools.TestVerticle;
@@ -36,7 +36,7 @@ public class SimpleBusTest extends TestVerticle {
   }
 
   private final Bus bus = new SimpleBus();
-  private HandlerRegistration handlerRegistration;
+  private Registration reg;
   static {
     JavaPlatform.register();
   }
@@ -45,7 +45,7 @@ public class SimpleBusTest extends TestVerticle {
   public void testLocal() {
     final SimpleBusTest demo = new SimpleBusTest();
 
-    handlerRegistration = bus.registerLocalHandler("someaddress", new MessageHandler<Any>() {
+    reg = bus.registerLocalHandler("someaddress", new MessageHandler<Any>() {
       @Override
       public void handle(Message<Any> message) {
         VertxAssert.assertEquals("some string", message.body().str);
@@ -53,8 +53,8 @@ public class SimpleBusTest extends TestVerticle {
 
         message.reply("reply");
 
-        handlerRegistration.unregisterHandler();
-        handlerRegistration = null;
+        reg.unregister();
+        reg = null;
       }
     });
 

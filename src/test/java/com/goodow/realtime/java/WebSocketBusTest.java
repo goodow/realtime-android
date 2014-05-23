@@ -18,8 +18,8 @@ import com.goodow.realtime.channel.Message;
 import com.goodow.realtime.channel.MessageHandler;
 import com.goodow.realtime.channel.impl.ReconnectBus;
 import com.goodow.realtime.core.Handler;
-import com.goodow.realtime.core.HandlerRegistration;
-import com.goodow.realtime.core.HandlerRegistrations;
+import com.goodow.realtime.core.Registration;
+import com.goodow.realtime.core.Registrations;
 import com.goodow.realtime.json.Json;
 import com.goodow.realtime.json.JsonObject;
 
@@ -43,7 +43,7 @@ public class WebSocketBusTest extends TestVerticle {
   }
 
   private Bus bus;
-  private HandlerRegistrations handlerRegs = new HandlerRegistrations();
+  private Registrations handlerRegs = new Registrations();
 
   @Override
   public void start() {
@@ -64,21 +64,21 @@ public class WebSocketBusTest extends TestVerticle {
 
   @Test
   public void test() {
-    HandlerRegistration openHandlerReg =
+    Registration openHandlerReg =
         bus.registerLocalHandler(Bus.ON_OPEN, new MessageHandler<JsonObject>() {
           @Override
           public void handle(Message<JsonObject> message) {
             log.info("EventBus opened");
           }
         });
-    HandlerRegistration closeHandlerReg =
+    Registration closeHandlerReg =
         bus.registerLocalHandler(Bus.ON_CLOSE, new MessageHandler<JsonObject>() {
           @Override
           public void handle(Message<JsonObject> message) {
             log.info("EventBus closed");
           }
         });
-    HandlerRegistration errorHandlerReg =
+    Registration errorHandlerReg =
         bus.registerLocalHandler(Bus.ON_ERROR, new MessageHandler<JsonObject>() {
           @Override
           public void handle(Message<JsonObject> message) {
@@ -86,7 +86,7 @@ public class WebSocketBusTest extends TestVerticle {
           }
         });
 
-    HandlerRegistration handlerRegistration =
+    Registration handlerRegistration =
         bus.registerHandler("someaddress", new MessageHandler<JsonObject>() {
           @Override
           public void handle(Message<JsonObject> message) {
@@ -99,7 +99,7 @@ public class WebSocketBusTest extends TestVerticle {
                 VertxAssert.assertEquals("reply2", message.body().getString("text"));
                 // Assert.assertNull(message.replyAddress());
 
-                handlerRegs.unregisterHandler();
+                handlerRegs.unregister();
                 handlerRegs = null;
                 bus.close();
                 VertxAssert.testComplete();

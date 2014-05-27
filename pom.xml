@@ -4,7 +4,6 @@
     <groupId>com.goodow.realtime</groupId>
     <artifactId>realtime-parent</artifactId>
     <version>0.5.5-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
   </parent>
   <artifactId>realtime-android</artifactId>
   <url>https://github.com/goodow/realtime-android/</url>
@@ -46,7 +45,7 @@
       <groupId>com.google.android</groupId>
       <artifactId>android</artifactId>
     </dependency>
-    
+
     <!-- Test -->
     <dependency>
       <groupId>io.vertx</groupId>

@@ -13,6 +13,8 @@
  */
 package com.goodow.realtime.java;
 
+import com.goodow.realtime.channel.server.impl.JavaDiff;
+import com.goodow.realtime.core.Diff;
 import com.goodow.realtime.core.Net;
 import com.goodow.realtime.core.Platform;
 import com.goodow.realtime.core.Platform.Type;
@@ -29,14 +31,21 @@ public class JavaPlatform implements PlatformFactory {
 
   protected final JavaNet net;
   protected final JavaScheduler scheduler;
+  private final JavaDiff diff;
 
   protected JavaPlatform(JavaScheduler scheduler) {
     net = new JavaNet();
     this.scheduler = scheduler;
+    diff = new JavaDiff();
   }
 
   private JavaPlatform() {
     this(new JavaScheduler());
+  }
+
+  @Override
+  public Diff diff() {
+    return diff;
   }
 
   @Override

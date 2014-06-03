@@ -118,7 +118,7 @@ public class WebSocketBusTest extends TestVerticle {
         VertxAssert.assertEquals("reply1", message.body().getString("text"));
 
         JsonObject o1 = Json.createObject().set("text", "reply2");
-        message.reply(o1);
+        message.reply(o1, null);
       }
     });
   }

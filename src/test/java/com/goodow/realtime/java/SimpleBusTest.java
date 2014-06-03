@@ -51,7 +51,7 @@ public class SimpleBusTest extends TestVerticle {
         VertxAssert.assertEquals("some string", message.body().str);
         VertxAssert.assertSame(demo, message.body().demo);
 
-        message.reply("reply");
+        message.reply("reply", null);
 
         reg.unregister();
         reg = null;

@@ -45,7 +45,7 @@ public class SimpleBusTest extends TestVerticle {
   public void testLocal() {
     final SimpleBusTest demo = new SimpleBusTest();
 
-    reg = bus.registerLocalHandler("someaddress", new MessageHandler<Any>() {
+    reg = bus.registerLocalHandler("some/topic", new MessageHandler<Any>() {
       @Override
       public void handle(Message<Any> message) {
         VertxAssert.assertEquals("some string", message.body().str);
@@ -58,7 +58,7 @@ public class SimpleBusTest extends TestVerticle {
       }
     });
 
-    bus.sendLocal("someaddress", new Any("some string", demo), new Handler<Message<String>>() {
+    bus.sendLocal("some/topic", new Any("some string", demo), new Handler<Message<String>>() {
       @Override
       public void handle(Message<String> message) {
         VertxAssert.assertEquals("reply", message.body());

@@ -45,6 +45,15 @@ public class SimpleBusTest extends TestVerticle {
   public void testLocal() {
     final SimpleBusTest demo = new SimpleBusTest();
 
+    bus.subscribeLocal(Bus.ON_CLOSE, new Handler<Message>() {
+      @Override
+      public void handle(Message event) {
+        reg.unregister();
+        reg = null;
+        VertxAssert.testComplete();
+      }
+    });
+
     reg = bus.subscribeLocal("some/topic", new MessageHandler<Any>() {
       @Override
       public void handle(Message<Any> message) {
@@ -52,9 +61,6 @@ public class SimpleBusTest extends TestVerticle {
         VertxAssert.assertSame(demo, message.body().demo);
 
         message.reply("reply", null);
-
-        reg.unregister();
-        reg = null;
       }
     });
 
@@ -63,7 +69,7 @@ public class SimpleBusTest extends TestVerticle {
       public void handle(Message<String> message) {
         VertxAssert.assertEquals("reply", message.body());
 
-        VertxAssert.testComplete();
+        bus.close();
       }
     });
   }

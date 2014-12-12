@@ -30,7 +30,7 @@ public class JavaScheduler implements Scheduler {
   private final Map<Integer, ScheduledFuture<?>> timers;
 
   protected JavaScheduler() {
-    executor = Executors.newScheduledThreadPool(4);
+    executor = Executors.newScheduledThreadPool(1);
     timerId = new AtomicInteger(0);
     timers = new HashMap<Integer, ScheduledFuture<?>>();
 

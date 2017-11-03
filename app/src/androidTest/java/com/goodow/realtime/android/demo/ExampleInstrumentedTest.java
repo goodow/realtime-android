@@ -1,4 +1,4 @@
-package com.goodow.realtime.channel;
+package com.goodow.realtime.android.demo;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     // Context of the app under test.
     Context appContext = InstrumentationRegistry.getTargetContext();
 
-    assertEquals("com.goodow.realtime.channel", appContext.getPackageName());
+    assertEquals("com.goodow.realtime.android.demo", appContext.getPackageName());
   }
 }

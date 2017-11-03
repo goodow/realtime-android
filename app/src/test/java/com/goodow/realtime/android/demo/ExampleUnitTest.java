@@ -1,4 +1,4 @@
-package com.goodow.realtime.channel;
+package com.goodow.realtime.android.demo;
 
 import org.junit.Test;
 

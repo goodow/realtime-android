@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     setContentView(com.goodow.realtime.android.demo.R.layout.activity_main);
 
     bus = new SimpleBus();
-    bus.subscribe("testTopic/#", new Handler<Message>() {
+    bus.subscribe("#", new Handler<Message>() {
       @Override
       public void handle(Message message) {
         System.out.print(message.payload());

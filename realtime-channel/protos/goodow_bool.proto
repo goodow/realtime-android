@@ -1,0 +1,12 @@
+syntax = 'proto3';
+package goodow.protobuf;
+
+option objc_class_prefix = 'GDPB';
+option java_package = "com.goodow.realtime.channel.protobuf";
+option java_outer_classname = "BoolProtos";
+
+enum Bool {
+  default = 0; // 默认值
+  true = 1;
+  false = 2;
+};

@@ -1,0 +1,51 @@
+syntax = 'proto3';
+package goodow.channel;
+
+option objc_class_prefix = 'GDCPB';
+option java_package = "com.goodow.realtime.channel.protobuf";
+option java_outer_classname = "ChannelProtos";
+
+import "google/protobuf/any.proto";
+
+message Message {
+  string topic = 1;
+  google.protobuf.Any payload = 2;
+  Options options = 3;
+  string replyTopic = 4;
+  bool local = 5;
+  bool send = 6;
+
+  message Options {
+    bool retained = 1;
+    bool patch = 2;
+    int64 timeout = 3;
+    int32 qos = 4;
+    google.protobuf.Any extras = 5;
+  }
+}
+
+// https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html
+message ApplePushNotification {
+  ApnsPayload aps = 1;
+  Message gdc = 2;
+  GoogleGCM gcm = 3;
+  string du = 100;
+
+  message ApnsPayload {
+    Alert alert = 1;
+    int32 badge = 2;
+    string sound = 3;
+    //  int32 content-available = 4;
+    string category = 5;
+    //  string thread-id = 6;
+
+    message Alert {
+      string title = 1;
+      string body = 2;
+      //    string title-loc-key = 1;
+    }
+  }
+  message GoogleGCM {
+    string message_id = 1;
+  }
+}

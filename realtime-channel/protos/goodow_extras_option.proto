@@ -1,0 +1,101 @@
+syntax = "proto3";
+package goodow.protobuf;
+
+option objc_class_prefix = "GDDPB";
+option java_package = "com.goodow.realtime.channel.protobuf";
+option java_outer_classname = "ExtrasOptionProtos";
+
+import "google/protobuf/field_mask.proto";
+// import "goodow_bool.proto";
+
+// 用于指定bus中options的extras
+
+message ExtrasOption {
+  ViewOption view_opt = 1;
+  CacheControl caching = 2;
+  string reply_topic = 3;
+
+  RequestOption request_opt = 100;
+  message RequestOption {
+    uint32 retry_times = 1; // 重试次数, 推荐优先使用 GDCOptions qos = GDCQosAtLeastOnce 来设置需要重试
+  };
+};
+
+message ViewOption {
+  LaunchMode launch_mode = 1;
+  StackMode stack_mode = 2; // 仅初始化时有效
+
+  bool status_bar = 6;
+  bool nav_bar = 7;
+  uint32 status_bar_style = 8; // UIStatusBarStyle
+  uint32 nav_bar_style = 9; // UIBarStyle
+  bool hides_bottom_bar_when_pushed = 10; // 仅初始化时有效
+  bool tab_bar = 11;
+  uint32 supported_interface_orientations = 12; // UIInterfaceOrientationMask
+  bool autorotate = 13; // 是否应该自动旋转
+  bool nav_bar_translucent = 14;
+
+  bool needs_refresh = 21; // 是否需要刷新数据
+  bool attempt_rotation_to_device_orientation = 22;
+  uint32 device_orientation = 23; // 更改设备的朝向 UIDeviceOrientation
+  bool tool_bar = 24;
+
+  uint32 preferred_interface_orientation_for_presentation = 30; // UIInterfaceOrientation
+  uint32 modal_presentation_style = 31; // 仅初始化时有效 UIModalPresentationStyle
+  uint32 modal_transition_style = 32; // 仅初始化时有效 UIModalTransitionStyle
+  uint32 edges_for_extended_layout = 33; // 仅初始化时有效 UIRectEdge (不支持设为值UIRectEdgeNone)
+  bool animated = 34; // 是否需要动画, 默认为 YES
+};
+
+// 是否创建新对象
+enum LaunchMode {
+  LAUNCH_MODE_UNSET = 0;
+  standard = 1; // 总是创建一个新的实例
+  singleTop = 2; // 如果在堆栈顶部已有一个同类型的ViewController实例, 则复用该实例; 否则, 创建新实例
+
+  singleTask = 3;
+  singleInstance = 4; // 单例模式. 先寻找是否已存在该类型的实例, 若存在则回退历史栈直至可见, 不存在则新创建
+
+  none = 5; // 不创建对象, 也不改变是否可见, 只转发消息
+}
+
+// 放入哪个历史回退栈里
+enum StackMode {
+  STACK_MODE_UNSET = 0;
+  push = 1; // push 到当前的 UINavigationController
+  present = 2; // 使用 top presentViewController:controller
+  presentPush = 3; // 使用 top presentViewController:[[UINavigationController alloc] initWithRootViewController:controller]
+  root = 4; // 替换当前 window 的 rootViewController
+};
+
+// https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching?hl=zh-cn
+message CacheControl {
+  Status status = 1;
+  double max_age = 2; // 缓存过期时间, 单位为s
+  string etag = 3; // 用于校验缓存是否有更新
+  uint64 last_modified = 4;
+  google.protobuf.FieldMask key_fields = 5; // 缓存的field paths 参见: https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+  RequestCachePolicy request_policy = 6;
+
+  enum Status {
+    STATUS_UNSET = 0;
+    Private = 1; // 只为单个用户缓存
+    Public = 2; // 即使有关联的用户认证, 甚至响应状态码无法正常缓存, 响应也可以被缓存. 大多数情况下, public不是必须的, 因为明确的缓存信息(例如max_age)已表示响应可以被缓存.
+    no_cache = 3; // 必须先与服务器确认是否有更新
+    no_store = 4; // 禁止缓存
+    unmodified = 5; // 服务器没有更新; 同时复用这个字段表示数据来自缓存
+  }
+
+  // 含义和 NSURLRequestCachePolicy 保持一致
+  enum RequestCachePolicy {
+//    reserved 4, 5;
+//    reserved "ReloadIgnoringLocalAndRemoteCacheData", "ReloadRevalidatingCacheData";
+
+    USE_PROTOCOL_CACHE_POLICY = 0; // 按 HTTP 缓存规范实现
+    RELOAD_IGNORING_LOCAL_CACHE_DATA = 1; // 只发起网络请求, 不使用缓存
+    RETURN_CACHE_DATA_ELSE_LOAD = 2; // 先读缓存, 不管是否过期, 有即返回缓存; 若无缓存则发起网络请求
+    RETURN_CACHE_DATA_DONT_LOAD = 3; // 只读缓存, 不管是否过期, 有即返回缓存; 若无缓存则失败
+
+    RELOAD_ELSE_RETURN_CACHE_DATA = 100; // 自定义策略: 先请求网络，若网络请求失败则返回缓存数据, 不管缓存是否过期
+  };
+};

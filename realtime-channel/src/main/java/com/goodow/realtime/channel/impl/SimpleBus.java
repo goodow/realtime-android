@@ -16,6 +16,7 @@ package com.goodow.realtime.channel.impl;
 import android.os.Looper;
 import com.goodow.realtime.channel.Bus;
 import com.goodow.realtime.channel.Message;
+import com.goodow.realtime.channel.firebase.FirebaseChannel;
 import com.goodow.realtime.channel.mqtt.Topic;
 import com.goodow.realtime.channel.util.IdGenerator;
 import com.goodow.realtime.channel.AsyncResult;
@@ -31,6 +32,7 @@ import java.util.logging.Logger;
 
 public class SimpleBus implements Bus {
   private static final Logger log = Logger.getLogger(SimpleBus.class.getName());
+  private final FirebaseChannel firebaseChannel;
 
   static void checkNotNull(String paramName, Object param) {
     if (param == null) {
@@ -48,6 +50,8 @@ public class SimpleBus implements Bus {
     replyHandlers = new LinkedHashMap();
     idGenerator = new IdGenerator();
     handler = new android.os.Handler(Looper.getMainLooper());
+
+    firebaseChannel = new FirebaseChannel(this);
   }
 
   @Override

@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "598242009211",
+    "firebase_url": "https://tencent-live.firebaseio.com",
+    "project_id": "tencent-live",
+    "storage_bucket": "tencent-live.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:598242009211:android:3f93420252c0c761",
+        "android_client_info": {
+          "package_name": "com.goodow.realtime.android.demo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "598242009211-ovaujh1m9aliomk2qurq62udsb59uviv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOXVZMrr8aBNnDnCjAo702dhWsyshN5gg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

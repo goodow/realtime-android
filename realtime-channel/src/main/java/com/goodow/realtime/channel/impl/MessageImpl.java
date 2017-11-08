@@ -19,7 +19,7 @@ import com.goodow.realtime.channel.AsyncResult;
 import com.goodow.realtime.channel.Handler;
 
 class MessageImpl<U> implements Message<U> {
-  protected U body;
+  protected U payload;
   protected Bus bus;
   protected String topic;
   protected String replyTopic;
@@ -27,13 +27,13 @@ class MessageImpl<U> implements Message<U> {
   protected boolean local;
 
   public MessageImpl(boolean local, boolean send, Bus bus, String topic, String replyTopic,
-                     U body) {
+                     U payload) {
     this.local = local;
     this.send = send;
     this.bus = bus;
     this.topic = topic;
     this.replyTopic = replyTopic;
-    this.body = body;
+    this.payload = payload;
   }
 
   @Override
@@ -43,7 +43,7 @@ class MessageImpl<U> implements Message<U> {
 
   @Override
   public U payload() {
-    return body;
+    return payload;
   }
 
   @Override
@@ -73,7 +73,7 @@ class MessageImpl<U> implements Message<U> {
 
   @Override
   public String toString() {
-    return body == null ? null : body.toString();
+    return payload == null ? null : payload.toString();
   }
 
   private <T> void sendReply(Object msg, Handler<AsyncResult<Message<T>>> replyHandler) {

@@ -43,8 +43,8 @@ Bus bus = new ReconnectBus("ws://localhost:1986/channel/websocket", null);
 bus.subscribe("some/topic", new MessageHandler<JsonObject>() {
   @Override
   public void handle(Message<JsonObject> message) {
-    JsonObject body = message.body();
-    System.out.println("Name: " + body.get("name"));
+    JsonObject payload = message.payload();
+    System.out.println("Name: " + payload.get("name"));
   }
 });
 

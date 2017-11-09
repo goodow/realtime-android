@@ -26,6 +26,7 @@ public class FirebaseChannel {
   private final DatabaseReference busRef;
   private final DatabaseReference toRemoveRef;
   private final Bus bus;
+  private final ChildEventListener childEventListener;
 
   public FirebaseChannel(final Bus bus) {
     this.bus = bus;
@@ -33,8 +34,9 @@ public class FirebaseChannel {
     Log.d("FirebaseChannel", "FirebaseInstanceId: " + instanceId);
 
     busRef = FirebaseDatabase.getInstance().getReference("bus");
-    toRemoveRef = busRef.child("queue").child(instanceId);
-    toRemoveRef.addChildEventListener(new ChildEventListener() {
+    this.toRemoveRef = busRef.child("queue").child(instanceId);
+
+    this.childEventListener = new ChildEventListener() {
       @Override
       public void onChildAdded(final DataSnapshot dataSnapshot, String s) {
         dataSnapshot.getRef().onDisconnect().removeValue();
@@ -74,7 +76,15 @@ public class FirebaseChannel {
       public void onCancelled(DatabaseError databaseError) {
 
       }
-    });
+    };
+    toRemoveRef.addChildEventListener(childEventListener);
 
+  }
+
+  @Override
+  protected void finalize() throws Throwable {
+    super.finalize();
+
+    toRemoveRef.removeEventListener(childEventListener);
   }
 }

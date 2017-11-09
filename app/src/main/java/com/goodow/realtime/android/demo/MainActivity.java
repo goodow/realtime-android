@@ -3,6 +3,8 @@ package com.goodow.realtime.android.demo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import com.goodow.realtime.android.demo.test.TestBActivity;
+import com.goodow.realtime.android.demo.test.TestBViewModel;
 import com.goodow.realtime.android.mvp.Router;
 import com.goodow.realtime.channel.AsyncResult;
 import com.goodow.realtime.channel.Bus;
@@ -28,6 +30,11 @@ public class MainActivity extends AppCompatActivity {
     bus.subscribe("views/#", new Handler<Message>() {
       @Override
       public void handle(Message message) {
+//        TestBViewModel viewModel = new TestBViewModel();
+//        viewModel.id = 21;
+//        viewModel.title = "test title";
+//        Router.getInstance().withData(viewModel).goToClass(TestBActivity.class);
+
         String url;
         if (message.topic().equals("views")) {
           boolean noData = message.payload() instanceof String;
@@ -72,8 +79,5 @@ public class MainActivity extends AppCompatActivity {
         message.reply("Ping 2");
       }
     });
-
-
-
   }
 }

@@ -1,0 +1,13 @@
+syntax = "proto3";
+package goodow.android.demo;
+
+option java_package = "com.goodow.realtime.android.demo.test";
+option java_outer_classname = "ViewModelProtos";
+option java_multiple_files = true;
+option optimize_for = LITE_RUNTIME;
+//option optimize_for = CODE_SIZE;
+
+message TestBViewModel {
+  int32 id = 1;
+  string title = 2;
+}

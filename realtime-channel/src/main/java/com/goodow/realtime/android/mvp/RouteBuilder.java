@@ -8,6 +8,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
 
+import com.goodow.realtime.android.mvp.util.CustomClassMapper;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -123,16 +125,27 @@ public class RouteBuilder {
       packageName = "";
     }
     className = packageName + (className.startsWith(".") ? "" : ".") + className;
-    Class<?> aClass;
+    Class<?> activityClz;
     try {
-      aClass = Class.forName(className);
+      activityClz = Class.forName(className);
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
-    if (!Activity.class.isAssignableFrom(aClass)) {
+    if (!Activity.class.isAssignableFrom(activityClz)) {
       throw new RuntimeException("className Parameter invalid!");
     }
-    this.goToClass((Class<? extends Activity>) aClass);
+
+    if (this.data instanceof Map) {
+      String viewModelName = className.substring(0, className.length() - Activity.class.getSimpleName().length()) + "ViewModel";
+      try {
+        Class viewModelClz = Class.forName(viewModelName);
+        Object viewModel = CustomClassMapper.convertToCustomClass(this.data, viewModelClz);
+        this.data = viewModel;
+      } catch (ClassNotFoundException e) {
+      }
+    }
+
+    this.goToClass((Class<? extends Activity>) activityClz);
   }
 
   /**

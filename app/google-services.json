@@ -9,8 +9,10 @@
     {
       "client_info": {
         "mobilesdk_app_id": "1:598242009211:android:3f93420252c0c761",
+        "mobilesdk_app_id2": "1:598242009211:android:aa487d5c289d3545",
         "android_client_info": {
-          "package_name": "com.goodow.realtime.android.demo"
+          "package_name": "com.goodow.realtime.android.demo",
+          "package_name2": "com.tencent.qqlivebroadcast"
         }
       },
       "oauth_client": [

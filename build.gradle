@@ -2,27 +2,29 @@
 
 buildscript {
     repositories {
-        jcenter()
-//        maven { url 'https://maven.google.com' }
+        maven {
+            url "http://maven.oa.com/nexus/content/repositories/android"
+        }
+        maven { url 'http://maven.oa.com/nexus/content/repositories/google-maven'}
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0'
+        classpath "com.android.tools.build:gradle:$localGradlePluginVersion"
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
 
-        classpath 'com.google.gms:google-services:3.1.2' // google-services plugin
 //        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.3'
+        classpath 'com.google.gms:google-services:3.1.1' // google-services plugin
     }
 }
 
 allprojects {
     repositories {
-        jcenter()
-
+//        jcenter()
         maven {
-            url "https://maven.google.com" // Google's Maven repository
+            url "http://maven.oa.com/nexus/content/repositories/android"
         }
+        maven { url 'http://maven.oa.com/nexus/content/repositories/google-maven'}
     }
 }
 

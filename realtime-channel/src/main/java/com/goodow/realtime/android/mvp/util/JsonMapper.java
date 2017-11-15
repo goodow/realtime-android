@@ -1,11 +1,17 @@
 package com.goodow.realtime.android.mvp.util;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
+import org.json.JSONTokener;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,6 +70,53 @@ public class JsonMapper {
       stringer.endArray();
     } else {
       stringer.value(object);
+    }
+  }
+
+  public static Map<String, Object> parseJson(String json) throws IOException {
+    try {
+      return unwrapJsonObject(new JSONObject(json));
+    } catch (JSONException e) {
+      throw new IOException(e);
+    }
+  }
+
+  public static Object parseJsonValue(String json) throws IOException {
+    try {
+      return unwrapJson(new JSONTokener(json).nextValue());
+    } catch (JSONException e) {
+      throw new IOException(e);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Map<String, Object> unwrapJsonObject(JSONObject jsonObject) throws JSONException {
+    Map<String, Object> map = new HashMap<>(jsonObject.length());
+    Iterator<String> keys = jsonObject.keys();
+    while (keys.hasNext()) {
+      String key = keys.next();
+      map.put(key, unwrapJson(jsonObject.get(key)));
+    }
+    return map;
+  }
+
+  private static List<Object> unwrapJsonArray(JSONArray jsonArray) throws JSONException {
+    List<Object> list = new ArrayList<>(jsonArray.length());
+    for (int i = 0; i < jsonArray.length(); i++) {
+      list.add(unwrapJson(jsonArray.get(i)));
+    }
+    return list;
+  }
+
+  public static Object unwrapJson(Object o) throws JSONException {
+    if (o instanceof JSONObject) {
+      return unwrapJsonObject((JSONObject) o);
+    } else if (o instanceof JSONArray) {
+      return unwrapJsonArray((JSONArray) o);
+    } else if (o.equals(JSONObject.NULL)) {
+      return null;
+    } else {
+      return o;
     }
   }
 }

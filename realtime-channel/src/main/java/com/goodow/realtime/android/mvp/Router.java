@@ -3,8 +3,10 @@ package com.goodow.realtime.android.mvp;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 
+import com.goodow.realtime.android.mvp.util.BeanUtils;
+
+import java.util.Map;
 import java.util.WeakHashMap;
 
 import static com.goodow.realtime.android.mvp.RouteBuilder.ACTIVITY_ID;
@@ -49,13 +51,24 @@ public class Router {
   private Router() {
   }
 
+  /**
+   * Inject params.
+   */
+  public void inject(Activity activity) {
+    Object data = this.getData(activity);
+    if (data instanceof Map) {
+      BeanUtils.populate(activity, (Map<String, ? extends Object>) data);
+    }
+  }
+
+  public <T> T getData(Activity activity) {
+    return (T) Router.intentCache.get(activity.getIntent().getStringExtra(ACTIVITY_ID));
+  }
+
   public RouteBuilder withData(Object data) {
     return new RouteBuilder(data);
   }
 
-  public <T> T getData(Intent intent) {
-    return (T) Router.intentCache.get(intent.getStringExtra(ACTIVITY_ID));
-  }
   public void goToClass(Class<? extends Activity> activity) {
     new RouteBuilder(null).goToClass(activity);
   }

@@ -16,7 +16,7 @@ public class TestBActivity extends Activity {
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    TestBViewModel data = Router.getInstance().getData(getIntent());
+    TestBViewModel data = Router.getInstance().getData(this);
     if (data != null) {
       int id = data.id;
       String title = data.title;

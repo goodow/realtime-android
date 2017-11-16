@@ -12,14 +12,15 @@ import com.goodow.realtime.android.mvp.Router;
 
 public class TestCActivity extends Activity {
 
+  public String title;
+  public int id;
+
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    Object data = Router.getInstance().getData(getIntent());
-    if (data != null) {
-
-    }
+    Router.getInstance().inject(this);
+    String title = this.title;
   }
 
 }

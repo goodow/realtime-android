@@ -16,7 +16,7 @@ public class TestAActivity extends Activity {
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    Object data = Router.getInstance().getData(getIntent());
+    Object data = Router.getInstance().getData(this);
     if (data != null) {
 
     }

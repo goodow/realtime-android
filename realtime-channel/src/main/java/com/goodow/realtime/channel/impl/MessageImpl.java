@@ -86,4 +86,9 @@ class MessageImpl<U> implements Message<U> {
       }
     }
   }
+
+  @Override
+  protected MessageImpl clone() {
+    return new MessageImpl(this.local, this.send, this.bus, this.topic, this.replyTopic, this.payload);
+  }
 }

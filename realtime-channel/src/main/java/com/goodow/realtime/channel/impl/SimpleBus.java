@@ -14,15 +14,18 @@
 package com.goodow.realtime.channel.impl;
 
 import android.os.Looper;
+
+import com.goodow.realtime.channel.AsyncResult;
 import com.goodow.realtime.channel.Bus;
+import com.goodow.realtime.channel.Handler;
 import com.goodow.realtime.channel.Message;
+import com.goodow.realtime.channel.Registration;
 import com.goodow.realtime.channel.firebase.FirebaseChannel;
 import com.goodow.realtime.channel.mqtt.Topic;
 import com.goodow.realtime.channel.util.IdGenerator;
-import com.goodow.realtime.channel.AsyncResult;
-import com.goodow.realtime.channel.Handler;
-import com.goodow.realtime.channel.Registration;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -143,15 +146,34 @@ public class SimpleBus implements Bus {
   private void doReceiveMessage(final Message message) {
     final String topic = message.topic();
     // Might be a reply message
-    final Handler<AsyncResult<Message>> handler = replyHandlers.get(topic);
-    if (handler != null) {
+    final Handler<AsyncResult<Message>> replyHandler = replyHandlers.get(topic);
+    if (replyHandler != null) {
       replyHandlers.remove(topic);
+
+      Message copiedMessage = message;
+      if (message.payload() != null) {
+        try {
+          Type messageType = replyHandler.getClass().getMethod("handle", AsyncResult.class).getGenericParameterTypes()[0];
+          if (messageType instanceof ParameterizedType) {
+            Type payloadType = ((ParameterizedType) messageType).getActualTypeArguments()[0];
+            if (payloadType instanceof ParameterizedType) {
+              payloadType = ((ParameterizedType) payloadType).getActualTypeArguments()[0];
+              if (payloadType instanceof Class && !((Class<Object>) payloadType).isAssignableFrom(message.payload().getClass())) {
+                copiedMessage = ((MessageImpl) message).clone();
+                ((MessageImpl) copiedMessage).payload = null;
+              }
+            }
+          }
+        } catch (NoSuchMethodException e) {
+        }
+      }
+
       scheduleHandle(topic, new Handler<Message>() {
         @Override
-        public void handle(Message event) {
-          handler.handle(new AsyncResultImpl(message));
+        public void handle(Message message) {
+          replyHandler.handle(new AsyncResultImpl(message));
         }
-      }, message);
+      }, copiedMessage);
       return;
     }
 
@@ -162,11 +184,23 @@ public class SimpleBus implements Bus {
       }
       LinkedHashSet handlers = handlerMap.get(topicFilter);
       if (handlers != null) {
-        // We make a copy since the handler might get unregistered from within the handler itself,
-        // which would screw up our iteration
-        LinkedHashSet<Handler<Message>> copy = (LinkedHashSet) handlers.clone();
-        for (Handler<Message> value : copy) {
-          scheduleHandle(topicFilter, value, message);
+        LinkedHashSet<Handler<Message>> copiedHandlers = (LinkedHashSet) handlers.clone();
+        for (Handler<Message> handler : copiedHandlers) {
+          Message copiedMessage = message;
+          if (message.payload() != null) {
+            try {
+              Type messageType = handler.getClass().getMethod("handle", Message.class).getGenericParameterTypes()[0];
+              if (messageType instanceof ParameterizedType) {
+                Type payloadType = ((ParameterizedType) messageType).getActualTypeArguments()[0];
+                if (payloadType instanceof Class && !((Class<Object>) payloadType).isAssignableFrom(message.payload().getClass())) {
+                  copiedMessage = ((MessageImpl) message).clone();
+                  ((MessageImpl) copiedMessage).payload = null;
+                }
+              }
+            } catch (NoSuchMethodException e) {
+            }
+          }
+          scheduleHandle(topicFilter, handler, copiedMessage);
         }
       }
     }

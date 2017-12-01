@@ -12,6 +12,7 @@ import com.goodow.realtime.channel.Handler;
 import com.goodow.realtime.channel.Message;
 import com.goodow.realtime.channel.impl.SimpleBus;
 import com.goodow.realtime.channel.util.AsyncResultHandler;
+import com.goodow.realtime.channel.util.BusProvider;
 
 import java.util.Map;
 
@@ -25,7 +26,8 @@ public class MainActivity extends AppCompatActivity {
     setContentView(com.goodow.realtime.android.demo.R.layout.activity_main);
 
     Router.init(getApplication());
-    bus = new SimpleBus();
+    BusProvider.enableRemoteBus();
+    bus = BusProvider.get();
 
     bus.subscribe("views/#", new Handler<Message>() {
       @Override

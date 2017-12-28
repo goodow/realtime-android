@@ -1,12 +1,12 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.goodow.realtime.channel">
 
-          package="com.goodow.realtime.channel"
->
+    <application>
 
-    <application android:allowBackup="true"
-                 android:label="@string/app_name"
-                 android:supportsRtl="true"
-    >
+        <provider
+            android:name="com.goodow.realtime.android.ChannelInitProvider"
+            android:authorities="${applicationId}.channelinitprovider"
+            android:exported="false"
+            android:initOrder="101"/>
 
     </application>
 

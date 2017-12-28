@@ -1,5 +1,8 @@
 apply plugin: 'com.android.library'
 
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
 android {
     compileSdkVersion 26
     buildToolsVersion "26.0.2"
@@ -31,6 +34,76 @@ dependencies {
 //    compile 'com.google.protobuf:protobuf-java-util:3.4.0'
     compile 'com.google.firebase:firebase-database:11.6.0'
     compile 'com.google.firebase:firebase-iid:11.6.0'
+//    compile 'com.google.firebase:firebase-perf:11.6.0'
 
     testCompile 'junit:junit:4.12'
+}
+
+version = "0.8.0" // This is the library version used when deploying the artifact
+group = 'com.goodow.realtime'	// 所在组
+def module_name = 'realtime-android'    // 项目的名称
+def siteUrl = 'https://github.com/goodow/realtime-android'    // 项目主页
+def gitUrl = 'https://github.com/goodow/realtime-android.git' // 项目的git地址
+
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'aar'
+                name module_name // 名称
+                url siteUrl
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0' // 开源协议名称
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt' // 协议地址
+                    }
+                }
+                developers {
+                    developer {
+                        id 'larrytin'    // 账号
+                        name 'Larry Tin'    // 名称
+                        email 'dev@goodow.com' // 邮箱地址
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+            }
+        }
+    }
+}
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+artifacts {
+    archives sourcesJar
+}
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+bintray {
+    // 读取配置文件中的用户名和key
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+    configurations = ['archives']
+    pkg {
+        userOrg = "goodow"
+        repo = "maven"        // 你在bintray上创建的库的名称
+        name = module_name               // 在jcenter中的项目名称
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = ["Apache-2.0"]
+        publish = true
+    }
 }
